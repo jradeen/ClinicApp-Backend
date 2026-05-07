@@ -1,0 +1,11 @@
+using System;
+using ClinicApp.API.DTOs.MedicalService;
+
+namespace ClinicApp.API.Interfaces.IMedicalService;
+
+public interface IMedicalServiceService
+{
+    Task<MedicalServiceResponseDto> CreateAsync(CreateMedicalServiceDto createMedicalServiceDto, string ownerId);
+    Task<List<MedicalServiceResponseDto>> GetByClinicAsync(int clinicId);
+
+}
