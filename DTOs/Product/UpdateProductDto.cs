@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ClinicApp.API.DTOs.Product;
 
-public class CreateProductDto
+public class UpdateProductDto
 {
     [Required, StringLength(100)]
     public string Name { get; set; } = string.Empty;

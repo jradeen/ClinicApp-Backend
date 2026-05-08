@@ -34,17 +34,48 @@ public class MedicalServiceService : IMedicalServiceService
         return ToMedicalResponseDto(result);
     }
 
+
     public async Task<List<MedicalServiceResponseDto>> GetAllAsync()
     {
-        var medicalServices= await _medicalServiceRepo.GetAllAsync();
+        var medicalServices = await _medicalServiceRepo.GetAllAsync();
         return medicalServices.Select(ToMedicalResponseDto).ToList();
     }
 
     public async Task<List<MedicalServiceResponseDto>> GetByClinicAsync(int clinicId)
     {
-        var medicalServices=await _medicalServiceRepo.GetByClinicIdAsync(clinicId);
+        var medicalServices = await _medicalServiceRepo.GetByClinicIdAsync(clinicId);
         return medicalServices.Select(ToMedicalResponseDto).ToList();
     }
+    public async Task<bool> DeleteMedicalServiceAsync(int medicalServiceId, string ownerId)
+    {
+        var medicalService = await _medicalServiceRepo.GetByIdAsync(medicalServiceId);
+        if (medicalService == null)
+            return false;
+        if (medicalService.Clinic.OwnerId != ownerId)
+            throw new UnauthorizedAccessException("You don't have permission to delete this medical service");
+
+        await _medicalServiceRepo.DeleteAsync(medicalServiceId);
+        return true;
+
+    }
+
+    public async Task<MedicalServiceResponseDto> UpdateMedicalServiceAsync(int medicalServiceId, UpdateMedicalServiceDto updateDto, string ownerId)
+    {
+        var medicalService = await _medicalServiceRepo.GetByIdAsync(medicalServiceId);
+        if (medicalService == null)
+            return null;
+        if (medicalService.Clinic.OwnerId != ownerId)
+            throw new UnauthorizedAccessException("You don't have permission to alter this medical service");
+
+        medicalService.Name=updateDto.Name;
+        medicalService.Description=updateDto.Description;
+        medicalService.Price=updateDto.Price;
+        medicalService.Duration=updateDto.Duration;
+        await _medicalServiceRepo.UpdateAsync(medicalService);
+        return ToMedicalResponseDto(medicalService);
+
+    }
+
     private MedicalServiceResponseDto ToMedicalResponseDto(MedicalService medicalService)
     {
         return new MedicalServiceResponseDto

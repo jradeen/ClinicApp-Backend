@@ -41,5 +41,42 @@ namespace ClinicApp.API.Controllers
             var medicalServices = await _medicalService.GetAllAsync();
             return Ok(medicalServices);
         }
+        [HttpDelete("{id:int}")]
+        [Authorize(Roles = "ClinicOwner")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                var result = await _medicalService.DeleteMedicalServiceAsync(id, ownerId);
+                if (!result)
+                    return NotFound();
+
+                return Ok("Medical service Deleted successfully");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+        }
+        [HttpPut("{id:int}")]
+        [Authorize(Roles = "ClinicOwner")]
+        public async Task<IActionResult> Update(int id, UpdateMedicalServiceDto updateDto)
+        {
+            var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                var result = await _medicalService.UpdateMedicalServiceAsync(id,updateDto, ownerId);
+                if (result==null)
+                    return NotFound();
+
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            } 
+        }
+
     }
 }

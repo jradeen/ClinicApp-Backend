@@ -47,6 +47,22 @@ public class ClinicService : IClinicService
         return ToClinicResponseDto(clinic);
     }
 
+    public async Task<ClinicResponseDto> UpdateClinicAsync(int clinicId, UpdateClinicDto updateDto, string ownerId)
+    {
+        var clinic = await _clinicRepo.GetByIdAsync(clinicId);
+        if (clinic == null)
+            return null;
+        if (clinic.OwnerId != ownerId)
+            throw new UnauthorizedAccessException("You don't have permission to alter this medical service");
+
+        clinic.Name = updateDto.Name;
+        clinic.Description = updateDto.Description;
+        clinic.Location = updateDto.Location;
+
+        await _clinicRepo.UpdateAsync(clinic);
+        return ToClinicResponseDto(clinic);
+    }
+
     private ClinicResponseDto ToClinicResponseDto(Clinic clinic)
     {
         return new ClinicResponseDto

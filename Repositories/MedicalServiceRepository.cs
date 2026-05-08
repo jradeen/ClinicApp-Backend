@@ -20,9 +20,10 @@ public class MedicalServiceRepository : IMedicalServiceRepository
         return service;
     }
 
+
     public async Task<List<MedicalService>> GetAllAsync()
     {
-        return await _context.MedicalServices.Include(m=>m.Clinic).ToListAsync();
+        return await _context.MedicalServices.Include(m => m.Clinic).ToListAsync();
     }
 
     public async Task<List<MedicalService>> GetByClinicIdAsync(int clinicId)
@@ -32,6 +33,22 @@ public class MedicalServiceRepository : IMedicalServiceRepository
 
     public async Task<MedicalService?> GetByIdAsync(int MedicalServiceId)
     {
-        return await _context.MedicalServices.FirstOrDefaultAsync(m => m.Id == MedicalServiceId);
+        return await _context.MedicalServices.Include(m=>m.Clinic).FirstOrDefaultAsync(m => m.Id == MedicalServiceId);
+    }
+
+    public async Task UpdateAsync(MedicalService medicalService)
+    {
+        _context.MedicalServices.Update(medicalService);
+        await _context.SaveChangesAsync();
+
+    }
+    public async Task<MedicalService?> DeleteAsync(int id)
+    {
+        var medicalService = await _context.MedicalServices.FirstOrDefaultAsync(m => m.Id == id);
+        if (medicalService == null) return null;
+        _context.MedicalServices.Remove(medicalService);
+        await _context.SaveChangesAsync();
+        return medicalService;
+
     }
 }

@@ -34,4 +34,10 @@ public class ClinicRepository : IClinicRepository
     {
         return await _context.Clinics.FirstOrDefaultAsync(c => c.OwnerId == ownerId);
     }
+
+    public async Task UpdateAsync(Clinic clinic)
+    {
+        _context.Clinics.Update(clinic);
+        await _context.SaveChangesAsync();
+    }
 }

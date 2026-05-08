@@ -45,6 +45,24 @@ namespace ClinicApp.API.Controllers
 
             return Ok(clinic);
         }
+        [HttpPut("{id:int}")]
+        [Authorize(Roles = "ClinicOwner")]
+        public async Task<IActionResult> Update(int id, UpdateClinicDto updateDto)
+        {
+            var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                var result = await _clinicService.UpdateClinicAsync(id, updateDto, ownerId);
+                if (result == null)
+                    return NotFound();
+
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+        }
 
     }
 }

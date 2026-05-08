@@ -21,20 +21,21 @@ public class ProductService : IProductService
         var clinic = await _clinicRepo.GetByOwnerIdAsync(ownerId);
         if (clinic == null) return null;
 
-        var product=new Product
+        var product = new Product
         {
-          Name=createProductDto.Name,
-          Description=createProductDto.Description,
-          Price=createProductDto.Price,
-          StockQuantity=createProductDto.StockQuantity,
-          ClinicId=clinic.Id,
+            Name = createProductDto.Name,
+            Description = createProductDto.Description,
+            Price = createProductDto.Price,
+            StockQuantity = createProductDto.StockQuantity,
+            ClinicId = clinic.Id,
 
         };
-        var result =await _productRepo.CreateAsync(product);
+        var result = await _productRepo.CreateAsync(product);
 
         return ToProductResponseDto(result);
 
     }
+
 
     public async Task<List<ProductResponseDto>> GetAllAsync()
     {
@@ -44,23 +45,51 @@ public class ProductService : IProductService
 
     public async Task<List<ProductResponseDto>> GetByClinicAsync(int clinicId)
     {
-      
-        var products=await _productRepo.GetByClinicIdAsync(clinicId);
+
+        var products = await _productRepo.GetByClinicIdAsync(clinicId);
 
         return products.Select(ToProductResponseDto).ToList();
     }
 
+    public async Task<bool> DeleteProductAsync(int productId, string ownerId)
+    {
+        var product = await _productRepo.GetByIdAsync(productId);
+        if (product == null)
+            return false;
+        if (product.Clinic.OwnerId != ownerId)
+            throw new UnauthorizedAccessException("You don't have permission to delete this product");
+
+        await _productRepo.DeleteAsync(productId);
+        return true;
+    }
+    public async Task<ProductResponseDto> UpdateProductAsync(int productId, UpdateProductDto updateDto, string ownerId)
+    {
+         var product = await _productRepo.GetByIdAsync(productId);
+        if (product == null)
+            return null;
+        if (product.Clinic.OwnerId != ownerId)
+            throw new UnauthorizedAccessException("You don't have permission to alter this product");
+
+        product.Name=updateDto.Name;
+        product.Description=updateDto.Description;
+        product.Price=updateDto.Price;
+        product.StockQuantity=updateDto.StockQuantity;
+        await _productRepo.UpdateAsync(product);
+        return ToProductResponseDto(product);
+    }
+
     private ProductResponseDto ToProductResponseDto(Product product)
     {
-        return new ProductResponseDto{
-            Id=product.Id,
-            Name=product.Name,
-            Description=product.Description,
-            Price=product.Price,
-            StockQuantity=product.StockQuantity,
+        return new ProductResponseDto
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            StockQuantity = product.StockQuantity,
             ClinicName = product.Clinic?.Name ?? "Clinic Name unavailable",
-            ClinicId=product.ClinicId,
-            
+            ClinicId = product.ClinicId,
+
         };
     }
 }

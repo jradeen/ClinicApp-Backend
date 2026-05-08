@@ -22,7 +22,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<List<Product>> GetAllAsync()
     {
-        return await _context.Products.Include(p=>p.Clinic).ToListAsync();
+        return await _context.Products.Include(p => p.Clinic).ToListAsync();
     }
 
     public async Task<List<Product>> GetByClinicIdAsync(int clinicId)
@@ -32,7 +32,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<Product?> GetByIdAsync(int id)
     {
-        return await _context.Products.FindAsync(id);
+        return await _context.Products.Include(p=>p.Clinic).FirstOrDefaultAsync(p=>p.Id==id);
     }
 
     public async Task<List<Product>> GetListByIdsAsync(List<int> ids)
@@ -40,5 +40,20 @@ public class ProductRepository : IProductRepository
         return await _context.Products
             .Where(p => ids.Contains(p.Id))
             .ToListAsync();
+    }
+    public async Task UpdateAsync(Product product)
+    {
+        _context.Products.Update(product);
+        await _context.SaveChangesAsync();
+
+    }
+    public async Task<Product?> DeleteAsync(int id)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+        if (product == null) return null;
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
+        return product;
+
     }
 }
