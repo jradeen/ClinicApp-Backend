@@ -34,6 +34,12 @@ public class MedicalServiceService : IMedicalServiceService
         return ToMedicalResponseDto(result);
     }
 
+    public async Task<List<MedicalServiceResponseDto>> GetAllAsync()
+    {
+        var medicalServices= await _medicalServiceRepo.GetAllAsync();
+        return medicalServices.Select(ToMedicalResponseDto).ToList();
+    }
+
     public async Task<List<MedicalServiceResponseDto>> GetByClinicAsync(int clinicId)
     {
         var medicalServices=await _medicalServiceRepo.GetByClinicIdAsync(clinicId);
@@ -48,6 +54,7 @@ public class MedicalServiceService : IMedicalServiceService
             Description = medicalService.Description,
             Price = medicalService.Price,
             Duration = medicalService.Duration,
+            ClinicName = medicalService.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = medicalService.ClinicId,
         };
     }

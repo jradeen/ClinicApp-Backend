@@ -33,5 +33,13 @@ namespace ClinicApp.API.Controllers
         {
             return Ok(await _medicalService.GetByClinicAsync(clinicId));
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAll()
+        {
+            var medicalServices = await _medicalService.GetAllAsync();
+            return Ok(medicalServices);
+        }
     }
 }

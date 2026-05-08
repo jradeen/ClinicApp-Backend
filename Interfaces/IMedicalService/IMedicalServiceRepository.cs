@@ -8,4 +8,6 @@ public interface IMedicalServiceRepository
     Task<MedicalService> CreateAsync(MedicalService service);
     Task<List<MedicalService>> GetByClinicIdAsync(int clinicId);
     Task<MedicalService?> GetByIdAsync(int MedicalServiceId);
+    Task<List<MedicalService>> GetAllAsync();
+
 }

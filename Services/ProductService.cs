@@ -36,6 +36,12 @@ public class ProductService : IProductService
 
     }
 
+    public async Task<List<ProductResponseDto>> GetAllAsync()
+    {
+        var products = await _productRepo.GetAllAsync();
+        return products.Select(ToProductResponseDto).ToList();
+    }
+
     public async Task<List<ProductResponseDto>> GetByClinicAsync(int clinicId)
     {
       
@@ -52,6 +58,7 @@ public class ProductService : IProductService
             Description=product.Description,
             Price=product.Price,
             StockQuantity=product.StockQuantity,
+            ClinicName = product.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId=product.ClinicId,
             
         };

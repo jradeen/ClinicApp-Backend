@@ -9,4 +9,6 @@ public interface IProductRepository
     Task<List<Product>> GetByClinicIdAsync(int clinicId);
     Task<Product?> GetByIdAsync(int id);
     Task<List<Product>> GetListByIdsAsync(List<int> ids);
+    Task<List<Product>> GetAllAsync();
+
 }

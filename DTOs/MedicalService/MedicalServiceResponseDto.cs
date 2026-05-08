@@ -9,5 +9,6 @@ public class MedicalServiceResponseDto
     public string Description { get; set; }
     public decimal Price { get; set; }
     public int Duration { get; set; }
+    public string ClinicName { get; set; }
     public int ClinicId { get; set; }
 }

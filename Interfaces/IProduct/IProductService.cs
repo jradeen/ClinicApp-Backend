@@ -7,4 +7,5 @@ public interface IProductService
 {
     Task<ProductResponseDto> CreateAsync(CreateProductDto createProductDto, string ownerId);
     Task<List<ProductResponseDto>> GetByClinicAsync(int clinicId);
+    Task<List<ProductResponseDto>> GetAllAsync();
 }

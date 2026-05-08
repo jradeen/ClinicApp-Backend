@@ -7,5 +7,6 @@ public interface IMedicalServiceService
 {
     Task<MedicalServiceResponseDto> CreateAsync(CreateMedicalServiceDto createMedicalServiceDto, string ownerId);
     Task<List<MedicalServiceResponseDto>> GetByClinicAsync(int clinicId);
+    Task<List<MedicalServiceResponseDto>> GetAllAsync();
 
 }

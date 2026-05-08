@@ -20,6 +20,11 @@ public class MedicalServiceRepository : IMedicalServiceRepository
         return service;
     }
 
+    public async Task<List<MedicalService>> GetAllAsync()
+    {
+        return await _context.MedicalServices.Include(m=>m.Clinic).ToListAsync();
+    }
+
     public async Task<List<MedicalService>> GetByClinicIdAsync(int clinicId)
     {
         return await _context.MedicalServices.Where(c => c.ClinicId == clinicId).ToListAsync();

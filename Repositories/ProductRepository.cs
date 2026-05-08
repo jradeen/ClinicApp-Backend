@@ -20,6 +20,11 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
+    public async Task<List<Product>> GetAllAsync()
+    {
+        return await _context.Products.Include(p=>p.Clinic).ToListAsync();
+    }
+
     public async Task<List<Product>> GetByClinicIdAsync(int clinicId)
     {
         return await _context.Products.Where(p => p.ClinicId == clinicId).ToListAsync();
