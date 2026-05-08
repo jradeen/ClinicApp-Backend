@@ -25,6 +25,7 @@ public class ClinicService : IClinicService
             Name = createClinicDto.Name,
             Description = createClinicDto.Description,
             Location = createClinicDto.Location,
+            PhoneNumber = createClinicDto.PhoneNumber,
             OwnerId = ownerId
         };
 
@@ -53,10 +54,11 @@ public class ClinicService : IClinicService
         if (clinic == null)
             return null;
         if (clinic.OwnerId != ownerId)
-            throw new UnauthorizedAccessException("You don't have permission to alter this medical service");
+            throw new UnauthorizedAccessException("You don't have permission to alter this clinic");
 
         clinic.Name = updateDto.Name;
         clinic.Description = updateDto.Description;
+        clinic.PhoneNumber = updateDto.PhoneNumber;
         clinic.Location = updateDto.Location;
 
         await _clinicRepo.UpdateAsync(clinic);
@@ -70,6 +72,7 @@ public class ClinicService : IClinicService
             Id = clinic.Id,
             Name = clinic.Name,
             Description = clinic.Description,
+            PhoneNumber = clinic.PhoneNumber ?? "unavailable",
             Location = clinic.Location,
             OwnerId = clinic.OwnerId
         };

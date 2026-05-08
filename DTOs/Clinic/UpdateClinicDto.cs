@@ -13,4 +13,8 @@ public class UpdateClinicDto
 
     [Required, StringLength(200)]
     public string Location { get; set; }
+
+    [Required]
+    [Phone]
+    public string PhoneNumber { get; set; } = string.Empty;
 }

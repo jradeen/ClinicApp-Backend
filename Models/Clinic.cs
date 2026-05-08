@@ -13,6 +13,9 @@ namespace ClinicApp.API.Models
         public string Description { get; set; } = string.Empty;
 
         public string Location { get; set; } = string.Empty;
+        
+        [Phone]
+        public string PhoneNumber { get; set; } = string.Empty;
 
         public string OwnerId { get; set; }
 
