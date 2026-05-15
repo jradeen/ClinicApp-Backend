@@ -19,7 +19,7 @@ namespace ClinicApp.API.Models
 
         public DateTime AppointmentDateTime { get; set; }
 
-        public string Status { get; set; } = "Pending"; // Pending / Confirmed / Cancelled
+        public string Status { get; set; } = "Pending"; // Pending / Confirmed / Cancelled / Completed
 
         public string PaymentMethod { get; set; } = "COD";
 

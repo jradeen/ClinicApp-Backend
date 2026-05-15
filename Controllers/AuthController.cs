@@ -71,7 +71,7 @@ namespace ClinicApp.API.Controllers
 
             var token = _tokenServices.GenerateJwtToken(user);
 
-            return Ok(new {user.UserName,user.Email,user.PhoneNumber,roles, token.Result });
+            return Ok(new {user.UserName,user.Email,user.PhoneNumber,roles,Token=token.Result });
         }
 
     }

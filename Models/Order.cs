@@ -21,7 +21,7 @@ public class Order
     public string PaymentMethod { get; set; } = "COD";
 
     public string Status { get; set; } = "Pending";
-    // Pending / Paid / Cancelled
+    
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
