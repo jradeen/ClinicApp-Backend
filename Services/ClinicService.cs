@@ -8,9 +8,12 @@ namespace ClinicApp.API.Services;
 public class ClinicService : IClinicService
 {
     private readonly IClinicRepository _clinicRepo;
-    public ClinicService(IClinicRepository clinicRepo)
+    private readonly IWebHostEnvironment _env;
+
+    public ClinicService(IClinicRepository clinicRepo,IWebHostEnvironment environment)
     {
         _clinicRepo = clinicRepo;
+        _env=environment;
     }
     public async Task<ClinicResponseDto> CreateClinicAsync(CreateClinicDto createClinicDto, string ownerId)
     {
@@ -26,7 +29,9 @@ public class ClinicService : IClinicService
             Description = createClinicDto.Description,
             Location = createClinicDto.Location,
             PhoneNumber = createClinicDto.PhoneNumber,
-            OwnerId = ownerId
+            OwnerId = ownerId,
+            ImageUrl = !string.IsNullOrEmpty(createClinicDto.ImageUrl) ? createClinicDto.ImageUrl : ""
+
         };
 
         var result = await _clinicRepo.CreateAsync(clinic);
@@ -60,6 +65,16 @@ public class ClinicService : IClinicService
         clinic.Description = updateDto.Description;
         clinic.PhoneNumber = updateDto.PhoneNumber;
         clinic.Location = updateDto.Location;
+        if (!string.IsNullOrEmpty(updateDto.ImageUrl) && clinic.ImageUrl != updateDto.ImageUrl)
+        {
+            var oldFilePath = Path.Combine(_env.WebRootPath, clinic.ImageUrl);
+
+            if (System.IO.File.Exists(oldFilePath))
+            {
+                System.IO.File.Delete(oldFilePath);
+            }
+            clinic.ImageUrl = updateDto.ImageUrl;
+        }
 
         await _clinicRepo.UpdateAsync(clinic);
         return ToClinicResponseDto(clinic);
@@ -74,7 +89,8 @@ public class ClinicService : IClinicService
             Description = clinic.Description,
             PhoneNumber = clinic.PhoneNumber ?? "unavailable",
             Location = clinic.Location,
-            OwnerId = clinic.OwnerId
+            OwnerId = clinic.OwnerId,
+            ImageUrl = clinic.ImageUrl,
         };
     }
 }

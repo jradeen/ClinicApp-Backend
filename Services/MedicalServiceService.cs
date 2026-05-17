@@ -10,10 +10,13 @@ public class MedicalServiceService : IMedicalServiceService
 {
     private readonly IMedicalServiceRepository _medicalServiceRepo;
     private readonly IClinicRepository _clinicRepo;
-    public MedicalServiceService(IMedicalServiceRepository medicalServiceRepo, IClinicRepository clinicRepo)
+    private readonly IWebHostEnvironment _env;
+
+    public MedicalServiceService(IWebHostEnvironment environment,IMedicalServiceRepository medicalServiceRepo, IClinicRepository clinicRepo)
     {
         _clinicRepo = clinicRepo;
         _medicalServiceRepo = medicalServiceRepo;
+        _env = environment;
 
     }
     public async Task<MedicalServiceResponseDto> CreateAsync(CreateMedicalServiceDto createMedicalServiceDto, string ownerId)
@@ -28,6 +31,8 @@ public class MedicalServiceService : IMedicalServiceService
             Price = createMedicalServiceDto.Price,
             Duration = createMedicalServiceDto.Duration,
             ClinicId = clinic.Id,
+            ImageUrl = !string.IsNullOrEmpty(createMedicalServiceDto.ImageUrl) ? createMedicalServiceDto.ImageUrl : ""
+
         };
 
         var result = await _medicalServiceRepo.CreateAsync(medicalService);
@@ -67,10 +72,21 @@ public class MedicalServiceService : IMedicalServiceService
         if (medicalService.Clinic.OwnerId != ownerId)
             throw new UnauthorizedAccessException("You don't have permission to alter this medical service");
 
-        medicalService.Name=updateDto.Name;
-        medicalService.Description=updateDto.Description;
-        medicalService.Price=updateDto.Price;
-        medicalService.Duration=updateDto.Duration;
+        medicalService.Name = updateDto.Name;
+        medicalService.Description = updateDto.Description;
+        medicalService.Price = updateDto.Price;
+        medicalService.Duration = updateDto.Duration;
+        if (!string.IsNullOrEmpty(updateDto.ImageUrl) && medicalService.ImageUrl != updateDto.ImageUrl)
+        {
+            var oldFilePath = Path.Combine(_env.WebRootPath, medicalService.ImageUrl);
+
+            // Check if the old file physically exists and delete it
+            if (System.IO.File.Exists(oldFilePath))
+            {
+                System.IO.File.Delete(oldFilePath);
+            }
+            medicalService.ImageUrl = updateDto.ImageUrl;
+        }
         await _medicalServiceRepo.UpdateAsync(medicalService);
         return ToMedicalResponseDto(medicalService);
 
@@ -87,6 +103,7 @@ public class MedicalServiceService : IMedicalServiceService
             Duration = medicalService.Duration,
             ClinicName = medicalService.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = medicalService.ClinicId,
+            ImageUrl = medicalService.ImageUrl,
         };
     }
 }

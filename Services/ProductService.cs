@@ -10,10 +10,13 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepo;
     private readonly IClinicRepository _clinicRepo;
-    public ProductService(IProductRepository productRepo, IClinicRepository clinicRepo)
+    private readonly IWebHostEnvironment _env;
+
+    public ProductService(IWebHostEnvironment environment, IProductRepository productRepo, IClinicRepository clinicRepo)
     {
         _clinicRepo = clinicRepo;
         _productRepo = productRepo;
+        _env = environment;
     }
 
     public async Task<ProductResponseDto> CreateAsync(CreateProductDto createProductDto, string ownerId)
@@ -28,6 +31,7 @@ public class ProductService : IProductService
             Price = createProductDto.Price,
             StockQuantity = createProductDto.StockQuantity,
             ClinicId = clinic.Id,
+            ImageUrl = !string.IsNullOrEmpty(createProductDto.ImageUrl) ? createProductDto.ImageUrl : ""
 
         };
         var result = await _productRepo.CreateAsync(product);
@@ -64,16 +68,27 @@ public class ProductService : IProductService
     }
     public async Task<ProductResponseDto> UpdateProductAsync(int productId, UpdateProductDto updateDto, string ownerId)
     {
-         var product = await _productRepo.GetByIdAsync(productId);
+        var product = await _productRepo.GetByIdAsync(productId);
         if (product == null)
             return null;
         if (product.Clinic.OwnerId != ownerId)
             throw new UnauthorizedAccessException("You don't have permission to alter this product");
 
-        product.Name=updateDto.Name;
-        product.Description=updateDto.Description;
-        product.Price=updateDto.Price;
-        product.StockQuantity=updateDto.StockQuantity;
+        product.Name = updateDto.Name;
+        product.Description = updateDto.Description;
+        product.Price = updateDto.Price;
+        product.StockQuantity = updateDto.StockQuantity;
+        if (!string.IsNullOrEmpty(updateDto.ImageUrl) && product.ImageUrl != updateDto.ImageUrl)
+        {
+            var oldFilePath = Path.Combine(_env.WebRootPath, product.ImageUrl);
+
+            if (System.IO.File.Exists(oldFilePath))
+            {
+                System.IO.File.Delete(oldFilePath);
+            }
+            product.ImageUrl = updateDto.ImageUrl;
+        }
+
         await _productRepo.UpdateAsync(product);
         return ToProductResponseDto(product);
     }
@@ -89,7 +104,7 @@ public class ProductService : IProductService
             StockQuantity = product.StockQuantity,
             ClinicName = product.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = product.ClinicId,
-
+            ImageUrl = product.ImageUrl,
         };
     }
 }

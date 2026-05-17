@@ -14,4 +14,6 @@ public class ClinicResponseDto
     public string PhoneNumber { get; set; } = string.Empty;
 
     public string OwnerId { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
+
 }

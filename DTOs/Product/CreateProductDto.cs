@@ -16,4 +16,5 @@ public class CreateProductDto
 
     [Range(0, 10000)]
     public int StockQuantity { get; set; }
+    public string? ImageUrl { get; set; }
 }

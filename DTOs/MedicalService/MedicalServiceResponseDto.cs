@@ -11,4 +11,6 @@ public class MedicalServiceResponseDto
     public int Duration { get; set; }
     public string ClinicName { get; set; }
     public int ClinicId { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
+
 }

@@ -17,4 +17,5 @@ public class CreateClinicDto
     [Required]
     [Phone]
     public string PhoneNumber { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
 }

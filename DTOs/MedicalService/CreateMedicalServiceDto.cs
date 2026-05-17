@@ -16,4 +16,5 @@ public class CreateMedicalServiceDto
 
     [Range(5, 480)] // 5 mins and 8 hours
     public int Duration { get; set; }
+    public string? ImageUrl { get; set; }
 }

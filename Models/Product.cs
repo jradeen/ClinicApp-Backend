@@ -8,17 +8,20 @@ public class Product
 {
     public int Id { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+    [Required]
+    public string Name { get; set; }
 
-        public string Description { get; set; }
+    public string Description { get; set; }
 
-        public decimal Price { get; set; }
+    public decimal Price { get; set; }
 
-        public int StockQuantity { get; set; }
+    public int StockQuantity { get; set; }
 
-        public int ClinicId { get; set; }
+    public int ClinicId { get; set; }
 
-        [ForeignKey("ClinicId")]
-        public Clinic Clinic { get; set; }
+    [ForeignKey("ClinicId")]
+    public Clinic Clinic { get; set; }
+
+    public string ImageUrl { get; set; } = "uploads/placeholders/default.jpg";
+
 }

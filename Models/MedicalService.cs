@@ -21,4 +21,7 @@ public class MedicalService
 
     [ForeignKey("ClinicId")]
     public Clinic Clinic { get; set; }
+
+    public string ImageUrl { get; set; } = "uploads/placeholders/default.jpg";
+
 }
