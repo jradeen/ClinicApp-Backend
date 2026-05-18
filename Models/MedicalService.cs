@@ -22,6 +22,9 @@ public class MedicalService
     [ForeignKey("ClinicId")]
     public Clinic Clinic { get; set; }
 
+    [Range(1, 20)]
+    public int AvailableStaffCapacity { get; set; } = 1;
+
     public string ImageUrl { get; set; } = "uploads/placeholders/default.jpg";
 
 }

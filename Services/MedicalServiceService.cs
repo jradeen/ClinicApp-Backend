@@ -103,6 +103,7 @@ public class MedicalServiceService : IMedicalServiceService
             Duration = medicalService.Duration,
             ClinicName = medicalService.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = medicalService.ClinicId,
+            AvailableStaffCapacity = medicalService.AvailableStaffCapacity,
             ImageUrl = medicalService.ImageUrl,
         };
     }

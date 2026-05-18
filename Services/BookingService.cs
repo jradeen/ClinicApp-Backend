@@ -27,7 +27,13 @@ public class BookingService : IBookingService
         if (createBookingDto.AppointmentDateTime.ToUniversalTime() <= DateTime.UtcNow)
             throw new Exception("Invalid appointment time.");
 
-        var isAvailable = await _bookingRepo.IsSlotAvailableAsync(createBookingDto.MedicalServiceId, createBookingDto.AppointmentDateTime);
+        var isAvailable = await _bookingRepo.IsSlotAvailableAsync(
+                createBookingDto.MedicalServiceId,
+                createBookingDto.AppointmentDateTime,
+                medicalService.Duration + 10,//the 10 min is a buffer
+                medicalService.AvailableStaffCapacity
+            );
+
         if (!isAvailable)
             throw new Exception("This time slot is already booked for this service");
 
