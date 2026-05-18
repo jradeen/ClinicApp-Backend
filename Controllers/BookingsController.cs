@@ -1,3 +1,4 @@
+using System.Data;
 using System.Security.Claims;
 using ClinicApp.API.DTOs.Booking;
 using ClinicApp.API.Interfaces.IBooking;
@@ -41,6 +42,7 @@ namespace ClinicApp.API.Controllers
             return Ok(await _bookingService.GetUserBookingsAsync(userId));
 
         }
+
         [HttpGet("clinic")]
         [Authorize(Roles = "ClinicOwner")]
         public async Task<IActionResult> GetClinicBookings()
@@ -48,6 +50,7 @@ namespace ClinicApp.API.Controllers
             var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return Ok(await _bookingService.GetClinicBookingsAsync(ownerId));
         }
+
         [HttpPatch("{id:int}/status")]
         [Authorize(Roles = "ClinicOwner")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
@@ -63,6 +66,25 @@ namespace ClinicApp.API.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 return StatusCode(403, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("available-slots")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAvailableSlots ([FromQuery] int medicalServiceId, [FromQuery]  DateTime date)
+        {
+            try
+            {
+                var slots = await _bookingService.GetAvailableSlotsAsync(medicalServiceId,date);
+                return Ok(slots);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

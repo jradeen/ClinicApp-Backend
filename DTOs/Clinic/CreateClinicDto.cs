@@ -13,7 +13,9 @@ public class CreateClinicDto
 
     [Required, StringLength(200)]
     public string Location { get; set; }
-    
+    public TimeSpan OpeningTime { get; set; }
+    public TimeSpan ClosingTime { get; set; }
+
     [Required]
     [Phone]
     public string PhoneNumber { get; set; } = string.Empty;

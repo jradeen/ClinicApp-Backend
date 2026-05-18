@@ -49,6 +49,49 @@ public class BookingService : IBookingService
         return ToBookingResponseDto(result);
     }
 
+    public async Task<List<string>> GetAvailableSlotsAsync(int medicalServiceId, DateTime date)
+    {
+        var medicalService = await _medicalServiceRepo.GetByIdAsync(medicalServiceId);
+
+        if (medicalService == null)
+            throw new KeyNotFoundException("Medical service not found");
+
+        var clinic = medicalService.Clinic;
+        if (clinic == null)
+            throw new Exception("Clinic data not loaded for this service");
+
+        //the fontend send just the date without time (e.g 2026-7-25 00:00:00) so we combine it with the clinic opening and closing time (08:30:00 -> 16:30:00)  
+        var startDateTime = date.Date.Add(clinic.OpeningTime);//(2026-7-25 08:30:00)
+        var endDateTime = date.Date.Add(clinic.ClosingTime);//(2026-7-25 16:30:00)
+
+        var availableSlots = new List<string>();
+        var currentSlot = startDateTime;
+        int slotStepMinutes = medicalService.Duration + 10;
+
+        while (currentSlot.AddMinutes(slotStepMinutes) <= endDateTime)
+        {
+            //if the user booked smth for today it doesnt generate slots in the past
+            if (currentSlot.ToUniversalTime() > DateTime.UtcNow)
+            {
+                var isAvailable = await _bookingRepo.IsSlotAvailableAsync(
+                        medicalServiceId,
+                        currentSlot,
+                        slotStepMinutes,
+                        medicalService.AvailableStaffCapacity
+                    );
+                if (isAvailable)
+                {
+                    availableSlots.Add(currentSlot.ToString("HH:mm"));
+                }
+            }
+
+            currentSlot = currentSlot.AddMinutes(slotStepMinutes);
+
+        }
+
+        return availableSlots;
+    }
+
     public async Task<List<BookingResponseDto>> GetClinicBookingsAsync(string ownerId)
     {
         var bookings = await _bookingRepo.GetByClinicOwnerIdAsync(ownerId);

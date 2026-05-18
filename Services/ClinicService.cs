@@ -87,6 +87,8 @@ public class ClinicService : IClinicService
             Id = clinic.Id,
             Name = clinic.Name,
             Description = clinic.Description,
+            OpeningTime = clinic.OpeningTime,
+            ClosingTime = clinic.ClosingTime,
             PhoneNumber = clinic.PhoneNumber ?? "unavailable",
             Location = clinic.Location,
             OwnerId = clinic.OwnerId,

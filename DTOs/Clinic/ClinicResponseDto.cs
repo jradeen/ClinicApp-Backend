@@ -13,6 +13,9 @@ public class ClinicResponseDto
     [Phone]
     public string PhoneNumber { get; set; } = string.Empty;
 
+    public TimeSpan OpeningTime { get; set; }
+    public TimeSpan ClosingTime { get; set; }
+
     public string OwnerId { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
 
