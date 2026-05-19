@@ -14,11 +14,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://*:5085");
-builder.Services.AddControllers();
-
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Forces DateTime to serialize with Z suffix → "2026-05-20T05:00:00Z"
+        options.JsonSerializerOptions.Converters.Add(new DateTimeUtcConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -53,8 +58,13 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 36))
-    ));
+        new MySqlServerVersion(new Version(8, 0, 36)),
+        mySqlOptions => mySqlOptions.DefaultDataTypeMappings(m =>
+            // Tells Pomelo: all DateTime columns store UTC, return them as Kind=Utc
+            m.WithClrDateTime(MySqlDateTimeType.DateTime6)
+        )
+    ).LogTo(Console.WriteLine, LogLevel.Information)
+    );
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var jwtSettings = builder.Configuration.GetSection("Jwt");

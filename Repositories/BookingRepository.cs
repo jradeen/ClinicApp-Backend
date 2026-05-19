@@ -61,7 +61,7 @@ public class BookingRepository : IBookingRepository
             .CountAsync(b =>
                 b.MedicalServiceId == medicalServiceId &&
                 b.Status != "Cancelled" &&
-                startingTime < b.AppointmentDateTime.AddMinutes(b.MedicalService.Duration + 10) &&
+                startingTime < b.AppointmentDateTime.AddMinutes(durationMinutes) &&
                 endingTime > b.AppointmentDateTime);
 
         return activeBookingsOverlaps < maxCapacity;

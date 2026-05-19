@@ -16,6 +16,8 @@ public class BookingService : IBookingService
         _bookingRepo = bookingRepo;
         _medicalServiceRepo = medicalServiceRepo;
     }
+
+
     public async Task<BookingResponseDto> CreateAsync(CreateBookingDto createBookingDto, string userId)
     {
         var medicalService = await _medicalServiceRepo.GetByIdAsync(createBookingDto.MedicalServiceId);
@@ -23,13 +25,16 @@ public class BookingService : IBookingService
         if (medicalService == null)
             throw new Exception("Medical service not found");
 
+        DateTime bookingTimeUtc = createBookingDto.AppointmentDateTime.ToUniversalTime();
+
+
         // Convert the incoming time to UTC before comparing
-        if (createBookingDto.AppointmentDateTime.ToUniversalTime() <= DateTime.UtcNow)
+        if (bookingTimeUtc <= DateTime.UtcNow)
             throw new Exception("Invalid appointment time.");
 
         var isAvailable = await _bookingRepo.IsSlotAvailableAsync(
                 createBookingDto.MedicalServiceId,
-                createBookingDto.AppointmentDateTime,
+                bookingTimeUtc,
                 medicalService.Duration + 10,//the 10 min is a buffer
                 medicalService.AvailableStaffCapacity
             );
@@ -40,7 +45,7 @@ public class BookingService : IBookingService
         var booking = new Booking
         {
             MedicalServiceId = createBookingDto.MedicalServiceId,
-            AppointmentDateTime = createBookingDto.AppointmentDateTime,
+            AppointmentDateTime = bookingTimeUtc,
             UserId = userId
         };
 
@@ -49,7 +54,7 @@ public class BookingService : IBookingService
         return ToBookingResponseDto(result);
     }
 
-    public async Task<List<string>> GetAvailableSlotsAsync(int medicalServiceId, DateTime date)
+    public async Task<List<string>> GetAvailableSlotsAsync(int medicalServiceId, DateOnly date)
     {
         var medicalService = await _medicalServiceRepo.GetByIdAsync(medicalServiceId);
 
@@ -60,9 +65,10 @@ public class BookingService : IBookingService
         if (clinic == null)
             throw new Exception("Clinic data not loaded for this service");
 
+
         //the fontend send just the date without time (e.g 2026-7-25 00:00:00) so we combine it with the clinic opening and closing time (08:30:00 -> 16:30:00)  
-        var startDateTime = date.Date.Add(clinic.OpeningTime);//(2026-7-25 08:30:00)
-        var endDateTime = date.Date.Add(clinic.ClosingTime);//(2026-7-25 16:30:00)
+        var startDateTime = date.ToDateTime(TimeOnly.FromTimeSpan(clinic.OpeningTime));
+        var endDateTime = date.ToDateTime(TimeOnly.FromTimeSpan(clinic.ClosingTime));
 
         var availableSlots = new List<string>();
         var currentSlot = startDateTime;
@@ -75,7 +81,7 @@ public class BookingService : IBookingService
             {
                 var isAvailable = await _bookingRepo.IsSlotAvailableAsync(
                         medicalServiceId,
-                        currentSlot,
+                        currentSlot.ToUniversalTime(),
                         slotStepMinutes,
                         medicalService.AvailableStaffCapacity
                     );
@@ -121,6 +127,19 @@ public class BookingService : IBookingService
         await _bookingRepo.UpdateAsync(booking);
         return true;
 
+    }
+    public async Task<bool> CancelBooking(int bookingId, string userId)
+    {
+
+        var booking = await _bookingRepo.GetByIdAsync(bookingId);
+        if (booking == null) return false;
+
+        if (userId != booking.UserId)
+            throw new UnauthorizedAccessException("You don't have permission to cancel this booking.");
+
+        booking.Status = "Cancelled";
+        await _bookingRepo.UpdateAsync(booking);
+        return true;
     }
 
     private BookingResponseDto ToBookingResponseDto(Booking booking)

@@ -22,6 +22,7 @@ namespace ClinicApp.API.Models
 
         [Required]
         public TimeSpan ClosingTime { get; set; } = new TimeSpan(17, 0, 0);
+        
         public string OwnerId { get; set; }
 
         [ForeignKey("OwnerId")]

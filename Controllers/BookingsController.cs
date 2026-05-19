@@ -72,14 +72,33 @@ namespace ClinicApp.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPatch("{id:int}/cancel")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> CancelBooking(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            try
+            {
+                var result = await _bookingService.CancelBooking(id, userId);
+                if (!result) return NotFound();
+
+                return Ok(new { message = $"Booking Cancelled" });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+        }
 
         [HttpGet("available-slots")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAvailableSlots ([FromQuery] int medicalServiceId, [FromQuery]  DateTime date)
+        public async Task<IActionResult> GetAvailableSlots([FromQuery] int medicalServiceId, [FromQuery] DateOnly date)
         {
             try
             {
-                var slots = await _bookingService.GetAvailableSlotsAsync(medicalServiceId,date);
+                var slots = await _bookingService.GetAvailableSlotsAsync(medicalServiceId, date);
                 return Ok(slots);
             }
             catch (KeyNotFoundException ex)

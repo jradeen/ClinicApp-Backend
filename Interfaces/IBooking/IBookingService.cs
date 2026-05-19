@@ -9,6 +9,7 @@ public interface IBookingService
     Task<List<BookingResponseDto>> GetUserBookingsAsync(string userId);
     Task<List<BookingResponseDto>> GetClinicBookingsAsync(string ownerId);
     Task<bool> UpdateStatusAsync(int bookingId, string newStatus, string ownerId);
-    Task<List<string>> GetAvailableSlotsAsync(int medicalServiceId, DateTime date);
+    Task<bool> CancelBooking(int bookingId, string userId);
+    Task<List<string>> GetAvailableSlotsAsync(int medicalServiceId, DateOnly date);
 
 }
