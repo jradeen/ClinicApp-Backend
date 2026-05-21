@@ -36,7 +36,7 @@ namespace ClinicApp.API.Controllers
             return Ok(clinics);
         }
 
-        [HttpGet("/my-clinic")]
+        [HttpGet("my-clinic")]
         [Authorize(Roles = "ClinicOwner")]
         public async Task<IActionResult> GetByOwner()
         {
