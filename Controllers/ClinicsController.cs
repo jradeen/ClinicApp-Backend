@@ -36,6 +36,20 @@ namespace ClinicApp.API.Controllers
             return Ok(clinics);
         }
 
+        [HttpGet("/my-clinic")]
+        [Authorize(Roles = "ClinicOwner")]
+        public async Task<IActionResult> GetByOwner()
+        {
+            var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(ownerId)) return Unauthorized();
+
+            var clinic = await _clinicService.GetByOwnerIdAsync(ownerId);
+            if (clinic == null)
+                return NotFound("You have not configured a clinic management profile yet.");
+
+            return Ok(clinic);
+        }
+
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)

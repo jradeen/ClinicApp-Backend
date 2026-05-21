@@ -10,10 +10,10 @@ public class ClinicService : IClinicService
     private readonly IClinicRepository _clinicRepo;
     private readonly IWebHostEnvironment _env;
 
-    public ClinicService(IClinicRepository clinicRepo,IWebHostEnvironment environment)
+    public ClinicService(IClinicRepository clinicRepo, IWebHostEnvironment environment)
     {
         _clinicRepo = clinicRepo;
-        _env=environment;
+        _env = environment;
     }
     public async Task<ClinicResponseDto> CreateClinicAsync(CreateClinicDto createClinicDto, string ownerId)
     {
@@ -49,6 +49,15 @@ public class ClinicService : IClinicService
     {
         var clinic = await _clinicRepo.GetByIdAsync(id);
         if (clinic == null) return null;
+
+        return ToClinicResponseDto(clinic);
+    }
+
+    public async Task<ClinicResponseDto?> GetByOwnerIdAsync(string ownerId)
+    {
+        var clinic = await _clinicRepo.GetByOwnerIdAsync(ownerId);
+        if (clinic == null)
+            return null;
 
         return ToClinicResponseDto(clinic);
     }

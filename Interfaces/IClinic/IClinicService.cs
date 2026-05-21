@@ -9,4 +9,5 @@ public interface IClinicService
     Task<List<ClinicResponseDto>> GetAllAsync();
     Task<ClinicResponseDto>UpdateClinicAsync(int clinicId,UpdateClinicDto updateDto, string ownerId);
     Task<ClinicResponseDto?> GetByIdAsync(int id);
+    Task<ClinicResponseDto?> GetByOwnerIdAsync(string ownerId);
 }
