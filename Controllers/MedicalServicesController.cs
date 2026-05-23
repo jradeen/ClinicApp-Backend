@@ -25,11 +25,11 @@ namespace ClinicApp.API.Controllers
             var result = await _medicalService.CreateAsync(medicalServiceDto, ownerId);
             if (result == null) return NotFound("Owner does not have a clinic yet");
 
-            return CreatedAtAction(nameof(GetMedicalServiceByClinicId), new { clinicId = result.ClinicId }, result);
+            return CreatedAtAction(nameof(GetMedicalServicesByClinicId), new { clinicId = result.ClinicId }, result);
         }
 
         [HttpGet("clinic/{clinicId:int}")]
-        public async Task<IActionResult> GetMedicalServiceByClinicId(int clinicId)
+        public async Task<IActionResult> GetMedicalServicesByClinicId(int clinicId)
         {
             return Ok(await _medicalService.GetByClinicAsync(clinicId));
         }

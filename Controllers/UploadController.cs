@@ -26,7 +26,8 @@ namespace ClinicApp.API
             if (!allowedExtensions.Contains(extension))
                 return BadRequest("Invalid file type. Only JPG, JPEG, and PNG are allowed.");
 
-            var uploadFolder = Path.Combine(_env.WebRootPath, "uploads");
+            var rootPath = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+            var uploadFolder = Path.Combine(rootPath, "uploads");
             if (!Directory.Exists(uploadFolder))
                 Directory.CreateDirectory(uploadFolder);
 

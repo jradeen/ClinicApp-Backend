@@ -114,7 +114,7 @@ public class BookingService : IBookingService
 
     public async Task<bool> UpdateStatusAsync(int bookingId, string newStatus, string ownerId)
     {
-        var validStatuses = new[] { "Confirmed", "Cancelled", "Completed" };
+        var validStatuses = new[] { "Confirmed", "Cancelled", "Completed","Pending" };
         if (!validStatuses.Contains(newStatus)) throw new Exception("Invalid status name.{ Confirmed, Cancelled, Completed }");
 
         var booking = await _bookingRepo.GetByIdAsync(bookingId);

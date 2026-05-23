@@ -95,8 +95,8 @@ public class OrderService : IOrderService
     }
     public async Task<bool> UpdateStatusAsync(int orderId, string newStatus, string ownerId)
     {
-        var validStatuses = new[] { "Confirmed", "Cancelled", "Delivered" };
-        if (!validStatuses.Contains(newStatus)) throw new Exception("Invalid status name.{Confirmed, Cancelled, Delivered}");
+        var validStatuses = new[] { "Confirmed", "Cancelled", "Delivered","Pending" };
+        if (!validStatuses.Contains(newStatus)) throw new Exception("Invalid status name.{Confirmed, Cancelled, Delivered, Pending}");
 
         var order = await _orderRepo.GetByIdAsync(orderId);
         if (order == null) return false;

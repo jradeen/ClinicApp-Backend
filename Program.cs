@@ -143,10 +143,11 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();

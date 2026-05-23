@@ -31,7 +31,9 @@ public class MedicalServiceService : IMedicalServiceService
             Price = createMedicalServiceDto.Price,
             Duration = createMedicalServiceDto.Duration,
             ClinicId = clinic.Id,
+            AvailableStaffCapacity =createMedicalServiceDto.AvailableStaffCapacity,
             ImageUrl = !string.IsNullOrEmpty(createMedicalServiceDto.ImageUrl) ? createMedicalServiceDto.ImageUrl : ""
+            
 
         };
 
@@ -76,6 +78,8 @@ public class MedicalServiceService : IMedicalServiceService
         medicalService.Description = updateDto.Description;
         medicalService.Price = updateDto.Price;
         medicalService.Duration = updateDto.Duration;
+        medicalService.AvailableStaffCapacity =updateDto.AvailableStaffCapacity;
+
         if (!string.IsNullOrEmpty(updateDto.ImageUrl) && medicalService.ImageUrl != updateDto.ImageUrl)
         {
             var oldFilePath = Path.Combine(_env.WebRootPath, medicalService.ImageUrl);
