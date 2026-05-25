@@ -4,6 +4,7 @@ using ClinicApp.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClinicApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260524104945_AddStaffScheduling")]
+    partial class AddStaffScheduling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,6 +186,9 @@ namespace ClinicApp.API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AvailableStaffCapacity")
+                        .HasColumnType("int");
+
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");
 
@@ -339,7 +345,7 @@ namespace ClinicApp.API.Migrations
                     b.ToTable("Staff");
                 });
 
-            modelBuilder.Entity("ClinicApp.API.Models.StaffServices", b =>
+            modelBuilder.Entity("ClinicApp.API.Models.StaffService", b =>
                 {
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
@@ -351,7 +357,7 @@ namespace ClinicApp.API.Migrations
 
                     b.HasIndex("MedicalServiceId");
 
-                    b.ToTable("StaffServices");
+                    b.ToTable("StaffService");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -593,7 +599,7 @@ namespace ClinicApp.API.Migrations
                     b.Navigation("Clinic");
                 });
 
-            modelBuilder.Entity("ClinicApp.API.Models.StaffServices", b =>
+            modelBuilder.Entity("ClinicApp.API.Models.StaffService", b =>
                 {
                     b.HasOne("ClinicApp.API.Models.MedicalService", "MedicalService")
                         .WithMany()

@@ -31,7 +31,6 @@ public class MedicalServiceService : IMedicalServiceService
             Price = createMedicalServiceDto.Price,
             Duration = createMedicalServiceDto.Duration,
             ClinicId = clinic.Id,
-            AvailableStaffCapacity =createMedicalServiceDto.AvailableStaffCapacity,
             ImageUrl = !string.IsNullOrEmpty(createMedicalServiceDto.ImageUrl) ? createMedicalServiceDto.ImageUrl : ""
             
 
@@ -78,7 +77,6 @@ public class MedicalServiceService : IMedicalServiceService
         medicalService.Description = updateDto.Description;
         medicalService.Price = updateDto.Price;
         medicalService.Duration = updateDto.Duration;
-        medicalService.AvailableStaffCapacity =updateDto.AvailableStaffCapacity;
 
         if (!string.IsNullOrEmpty(updateDto.ImageUrl) && medicalService.ImageUrl != updateDto.ImageUrl)
         {
@@ -107,7 +105,6 @@ public class MedicalServiceService : IMedicalServiceService
             Duration = medicalService.Duration,
             ClinicName = medicalService.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = medicalService.ClinicId,
-            AvailableStaffCapacity = medicalService.AvailableStaffCapacity,
             ImageUrl = medicalService.ImageUrl,
         };
     }

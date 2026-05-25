@@ -51,21 +51,7 @@ public class BookingRepository : IBookingRepository
         .ToListAsync();
 
     }
-
-
-    public async Task<bool> IsSlotAvailableAsync(int medicalServiceId, DateTime startingTime, int durationMinutes, int maxCapacity)
-    {
-        var endingTime = startingTime.AddMinutes(durationMinutes);
-
-        var activeBookingsOverlaps = await _context.Bookings
-            .CountAsync(b =>
-                b.MedicalServiceId == medicalServiceId &&
-                b.Status != "Cancelled" &&
-                startingTime < b.AppointmentDateTime.AddMinutes(durationMinutes) &&
-                endingTime > b.AppointmentDateTime);
-
-        return activeBookingsOverlaps < maxCapacity;
-    }
+    
 
     public async Task UpdateAsync(Booking booking)
     {

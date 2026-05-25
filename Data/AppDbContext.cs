@@ -18,6 +18,15 @@ namespace ClinicApp.API.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Staff> Staff { get; set; }
+        public DbSet<StaffServices> StaffServices { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<StaffServices>().HasKey(ss => new { ss.StaffId, ss.MedicalServiceId });
+        }
 
     }
 }

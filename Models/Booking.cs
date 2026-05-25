@@ -8,7 +8,7 @@ namespace ClinicApp.API.Models
         public int Id { get; set; }
 
         public string UserId { get; set; }
-        
+
         [ForeignKey("UserId")]
         public AppUser User { get; set; }
 
@@ -24,5 +24,10 @@ namespace ClinicApp.API.Models
         public string PaymentMethod { get; set; } = "COD";
 
         public string PaymentStatus { get; set; } = "Pending";// Pending / Paid
+
+        public int? StaffId { get; set; }   // nullable → no breaking changes
+
+        [ForeignKey("StaffId")] 
+        public Staff? Staff { get; set; }
     }
 }

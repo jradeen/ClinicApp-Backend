@@ -9,11 +9,13 @@ namespace ClinicApp.API.Services;
 public class BookingService : IBookingService
 {
     private readonly IBookingRepository _bookingRepo;
+    private readonly IStaffRepository _staffRepo;
     private readonly IMedicalServiceRepository _medicalServiceRepo;
 
-    public BookingService(IMedicalServiceRepository medicalServiceRepo, IBookingRepository bookingRepo)
+    public BookingService(IStaffRepository staffRepo, IMedicalServiceRepository medicalServiceRepo, IBookingRepository bookingRepo)
     {
         _bookingRepo = bookingRepo;
+        _staffRepo = staffRepo;
         _medicalServiceRepo = medicalServiceRepo;
     }
 
@@ -27,28 +29,25 @@ public class BookingService : IBookingService
 
         DateTime bookingTimeUtc = createBookingDto.AppointmentDateTime.ToUniversalTime();
 
-
-        // Convert the incoming time to UTC before comparing
         if (bookingTimeUtc <= DateTime.UtcNow)
             throw new Exception("Invalid appointment time.");
 
-        var isAvailable = await _bookingRepo.IsSlotAvailableAsync(
+        var availableStaffId = await _staffRepo.GetAvailableStaffAsync(
                 createBookingDto.MedicalServiceId,
                 bookingTimeUtc,
-                medicalService.Duration + 10,//the 10 min is a buffer
-                medicalService.AvailableStaffCapacity
+                medicalService.Duration + 10
             );
 
-        if (!isAvailable)
-            throw new Exception("This time slot is already booked for this service");
+        if (availableStaffId == null)
+            throw new Exception("No available staff for this time slot");
 
         var booking = new Booking
         {
             MedicalServiceId = createBookingDto.MedicalServiceId,
             AppointmentDateTime = bookingTimeUtc,
-            UserId = userId
+            UserId = userId,
+            StaffId = availableStaffId  // ✅ auto-assigns the free staff member
         };
-
 
         var result = await _bookingRepo.CreateAsync(booking);
         return ToBookingResponseDto(result);
@@ -79,13 +78,12 @@ public class BookingService : IBookingService
             //if the user booked smth for today it doesnt generate slots in the past
             if (currentSlot.ToUniversalTime() > DateTime.UtcNow)
             {
-                var isAvailable = await _bookingRepo.IsSlotAvailableAsync(
-                        medicalServiceId,
-                        currentSlot.ToUniversalTime(),
-                        slotStepMinutes,
-                        medicalService.AvailableStaffCapacity
-                    );
-                if (isAvailable)
+                var availableStaffId = await _staffRepo.GetAvailableStaffAsync(
+                    medicalServiceId,
+                    currentSlot.ToUniversalTime(),
+                    slotStepMinutes
+                );
+                if (availableStaffId != null)
                 {
                     availableSlots.Add(currentSlot.ToString("HH:mm"));
                 }
@@ -114,7 +112,7 @@ public class BookingService : IBookingService
 
     public async Task<bool> UpdateStatusAsync(int bookingId, string newStatus, string ownerId)
     {
-        var validStatuses = new[] { "Confirmed", "Cancelled", "Completed","Pending" };
+        var validStatuses = new[] { "Confirmed", "Cancelled", "Completed", "Pending" };
         if (!validStatuses.Contains(newStatus)) throw new Exception("Invalid status name.{ Confirmed, Cancelled, Completed }");
 
         var booking = await _bookingRepo.GetByIdAsync(bookingId);

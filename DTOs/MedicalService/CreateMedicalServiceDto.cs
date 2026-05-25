@@ -18,6 +18,4 @@ public class CreateMedicalServiceDto
     public int Duration { get; set; }
     public string? ImageUrl { get; set; }
 
-    [Range(1, 20, ErrorMessage = "Capacity must be at least 1.")]
-    public int AvailableStaffCapacity { get; set; }
 }
