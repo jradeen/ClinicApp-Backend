@@ -4,5 +4,5 @@ public class StaffResponseDto
     public string Name { get; set; }
     public int ClinicId { get; set; }
     public string ClinicName { get; set; }
-    public List<string> Services { get; set; } = new(); 
+    public List<StaffServiceDto> Services { get; set; } = new(); 
 }

@@ -17,6 +17,8 @@ namespace ClinicApp.API.Models
         [ForeignKey("MedicalServiceId")]
         public MedicalService MedicalService { get; set; }
 
+        public int MedicalServiceDuration { get; set; }
+
         public DateTime AppointmentDateTime { get; set; }
 
         public string Status { get; set; } = "Pending"; // Pending / Confirmed / Cancelled / Completed

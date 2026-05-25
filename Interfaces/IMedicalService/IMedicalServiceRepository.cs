@@ -9,7 +9,9 @@ public interface IMedicalServiceRepository
     Task<List<MedicalService>> GetByClinicIdAsync(int clinicId);
     Task<MedicalService?> GetByIdAsync(int MedicalServiceId);
     Task<MedicalService?> DeleteAsync(int id);
-    Task UpdateAsync( MedicalService medicalService);
+    Task UpdateAsync(MedicalService medicalService);
     Task<List<MedicalService>> GetAllAsync();
+    Task<List<MedicalService>> GetListByIdsAsync(List<int> ids);
+
 
 }

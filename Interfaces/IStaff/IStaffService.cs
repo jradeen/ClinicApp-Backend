@@ -1,8 +1,8 @@
 public interface IStaffService
 {
-    Task<List<StaffResponseDto>> GetByClinicIdAsync(int clinicId);
-    Task<StaffResponseDto> GetByIdAsync(int id);
-    Task<StaffResponseDto> CreateAsync(CreateStaffDto dto);
-    Task<StaffResponseDto> UpdateAsync(int id, UpdateStaffDto dto);
-    Task<bool> DeleteAsync(int id);
+    Task<List<StaffResponseDto>> GetByOwnerIdAsync(string ownerId);
+    Task<StaffResponseDto> GetByIdAsync(int id,string ownerId);
+    Task<StaffResponseDto> CreateAsync(CreateStaffDto dto, string ownerId);
+    Task<StaffResponseDto> UpdateAsync(int id, UpdateStaffDto dto ,string ownerId);
+    Task<bool> DeleteAsync(int id, string ownerId);
 }

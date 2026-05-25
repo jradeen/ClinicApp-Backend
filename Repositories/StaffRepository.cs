@@ -15,6 +15,7 @@ public class StaffRepository : IStaffRepository
     public async Task<List<Staff>> GetByClinicIdAsync(int clinicId)
     {
         return await _context.Staff
+            .Include(s => s.Clinic)
             .Include(s => s.StaffServices)
                 .ThenInclude(ss => ss.MedicalService)
             .Where(s => s.ClinicId == clinicId)
@@ -83,7 +84,7 @@ public class StaffRepository : IStaffRepository
             .Where(s => !_context.Bookings.Any(b =>
                 b.StaffId == s.Id &&
                 b.Status != "Cancelled" &&
-                startingTime < b.AppointmentDateTime.AddMinutes(durationMinutes) &&
+                startingTime < b.AppointmentDateTime.AddMinutes(b.MedicalServiceDuration) &&
                 endingTime > b.AppointmentDateTime))
             .Select(s => s.Id)
             .FirstOrDefaultAsync();

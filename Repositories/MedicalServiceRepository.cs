@@ -36,6 +36,13 @@ public class MedicalServiceRepository : IMedicalServiceRepository
         return await _context.MedicalServices.Include(m=>m.Clinic).FirstOrDefaultAsync(m => m.Id == MedicalServiceId);
     }
 
+    public async Task<List<MedicalService>> GetListByIdsAsync(List<int> ids)
+    {
+        return await _context.MedicalServices
+            .Where(m => ids.Contains(m.Id))
+            .ToListAsync();
+    }
+
     public async Task UpdateAsync(MedicalService medicalService)
     {
         _context.MedicalServices.Update(medicalService);

@@ -46,7 +46,8 @@ public class BookingService : IBookingService
             MedicalServiceId = createBookingDto.MedicalServiceId,
             AppointmentDateTime = bookingTimeUtc,
             UserId = userId,
-            StaffId = availableStaffId  // ✅ auto-assigns the free staff member
+            StaffId = availableStaffId,
+            MedicalServiceDuration = medicalService.Duration + 10
         };
 
         var result = await _bookingRepo.CreateAsync(booking);
