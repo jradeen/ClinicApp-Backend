@@ -33,8 +33,11 @@ public class BookingRepository : IBookingRepository
 
     public async Task<Booking> GetByIdAsync(int bookingId)
     {
-        var booking = await _context.Bookings.Include(b => b.MedicalService)
+        var booking = await _context.Bookings
+                        .Include(b => b.User)
+                        .Include(b => b.MedicalService)
                         .ThenInclude(m => m.Clinic)
+                        .ThenInclude(c => c.Owner)
                         .FirstOrDefaultAsync(b => b.Id == bookingId);
 
         if (booking == null) return null;
@@ -51,7 +54,7 @@ public class BookingRepository : IBookingRepository
         .ToListAsync();
 
     }
-    
+
 
     public async Task UpdateAsync(Booking booking)
     {

@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using ClinicApp.API.DTOs.Booking;
 using ClinicApp.API.Interfaces.IBooking;
+using ClinicApp.API.Interfaces.IClinic;
 using ClinicApp.API.Interfaces.IMedicalService;
 using ClinicApp.API.Models;
 
@@ -11,12 +13,18 @@ public class BookingService : IBookingService
     private readonly IBookingRepository _bookingRepo;
     private readonly IStaffRepository _staffRepo;
     private readonly IMedicalServiceRepository _medicalServiceRepo;
+    private readonly IClinicRepository _clinicRepo;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<BookingService> _logger;
 
-    public BookingService(IStaffRepository staffRepo, IMedicalServiceRepository medicalServiceRepo, IBookingRepository bookingRepo)
+    public BookingService(IClinicRepository clinicRepo, ILogger<BookingService> logger, IEmailService emailService, IStaffRepository staffRepo, IMedicalServiceRepository medicalServiceRepo, IBookingRepository bookingRepo)
     {
         _bookingRepo = bookingRepo;
         _staffRepo = staffRepo;
         _medicalServiceRepo = medicalServiceRepo;
+        _clinicRepo = clinicRepo;
+        _emailService = emailService;
+        _logger = logger;
     }
 
 
@@ -51,6 +59,29 @@ public class BookingService : IBookingService
         };
 
         var result = await _bookingRepo.CreateAsync(booking);
+
+        var clinic = await _clinicRepo.GetByIdAsync(medicalService.ClinicId);
+
+        var localTime = TimeZoneInfo.ConvertTimeFromUtc(
+            booking.AppointmentDateTime,
+            TimeZoneInfo.FindSystemTimeZoneById("Jordan Standard Time")
+        );
+
+        _logger.LogWarning("Owner email: {Email}", clinic?.Owner?.Email);
+        if (clinic?.Owner?.Email != null)
+        {
+            await _emailService.SendAsync(
+                clinic.Owner.Email,
+                clinic.Owner.UserName ?? "Clinic Owner",
+                "New booking made",
+                $"Hi {clinic.Owner.UserName ?? "Clinic Owner"}, {booking.User?.UserName ?? "A patient"} has booked {medicalService.Name} on {localTime:dd/MM/yyyy HH:mm}."
+            );
+        }
+        else
+        {
+            _logger.LogWarning("Email was null, skipping notification ");
+        }
+
         return ToBookingResponseDto(result);
     }
 
@@ -124,6 +155,25 @@ public class BookingService : IBookingService
 
         booking.Status = newStatus;
         await _bookingRepo.UpdateAsync(booking);
+        _logger.LogWarning("userEmail: {Email}", booking.User?.Email);
+        var localTime = TimeZoneInfo.ConvertTimeFromUtc(
+            booking.AppointmentDateTime,
+            TimeZoneInfo.FindSystemTimeZoneById("Jordan Standard Time")
+        );
+        if (booking.User?.Email != null)
+        {
+            await _emailService.SendAsync(
+                booking.User.Email,
+                booking.User.UserName ?? "User",
+                "Your booking status has been updated",
+                $"Hi {booking.User.UserName ?? "User"}, your booking for {booking.MedicalService?.Name}on {localTime:dd/MM/yyyy HH:mm} is now {newStatus}."
+            );
+        }
+        else
+        {
+            _logger.LogWarning("Email was null, skipping notification ");
+        }
+
         return true;
 
     }
@@ -138,6 +188,26 @@ public class BookingService : IBookingService
 
         booking.Status = "Cancelled";
         await _bookingRepo.UpdateAsync(booking);
+
+        var localTime = TimeZoneInfo.ConvertTimeFromUtc(
+            booking.AppointmentDateTime,
+            TimeZoneInfo.FindSystemTimeZoneById("Jordan Standard Time")
+        );
+
+        if (booking.MedicalService?.Clinic?.Owner?.Email != null)
+        {
+            await _emailService.SendAsync(
+                booking.MedicalService.Clinic.Owner.Email,
+                booking.MedicalService.Clinic.Owner.UserName ?? "Service Name Unavailable",
+                "A booking has been cancelled",
+                $"Patient {booking.User?.UserName ?? "Unknown"} cancelled their {booking.MedicalService.Name} appointment on {localTime:dd/MM/yyyy HH:mm}."
+            );
+        }
+        else
+        {
+            _logger.LogWarning("Email was null, skipping notification ");
+        }
+
         return true;
     }
 

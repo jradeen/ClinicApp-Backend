@@ -27,7 +27,7 @@ public class ClinicRepository : IClinicRepository
 
     public async Task<Clinic?> GetByIdAsync(int id)
     {
-        return await _context.Clinics.FirstOrDefaultAsync(c => c.Id == id);
+        return await _context.Clinics.Include(c=> c.Owner).FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<Clinic?> GetByOwnerIdAsync(string ownerId)

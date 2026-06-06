@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using ClinicApp.API.DTOs.Order;
 using ClinicApp.API.Interfaces.IClinic;
 using ClinicApp.API.Interfaces.IOrder;
@@ -12,12 +13,18 @@ public class OrderService : IOrderService
     private readonly IOrderRepository _orderRepo;
     private readonly IProductRepository _productRepo;
     private readonly IClinicRepository _clinicRepo;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<OrderService> _logger;
 
-    public OrderService(IOrderRepository orderRepo, IProductRepository productRepo, IClinicRepository clinicRepo)
+
+
+    public OrderService(ILogger<OrderService> logger,IEmailService emailService, IOrderRepository orderRepo, IProductRepository productRepo, IClinicRepository clinicRepo)
     {
         _orderRepo = orderRepo;
         _productRepo = productRepo;
         _clinicRepo = clinicRepo;
+        _emailService = emailService;
+        _logger = logger;
     }
     public async Task<List<OrderResponseDto>> CreateAsync(CreateOrderDto createOrderDto, string userId)
     {
@@ -74,10 +81,28 @@ public class OrderService : IOrderService
 
             order.TotalAmount = total;
             createdOrders.Add(order);
+
+            var clinic = await _clinicRepo.GetByIdAsync(group.Key);
+
+            if (clinic?.Owner?.Email != null)
+            {
+                await _emailService.SendAsync(
+                    clinic.Owner.Email,
+                    clinic.Owner.UserName ?? "Clinic Owner",
+                    "New order placed",
+                    $"Hi {clinic.Owner.UserName ?? "Clinic Owner"}, a new order has been placed at {clinic.Name} for {total:C}."
+                );
+            }
+            else
+            {
+                _logger.LogWarning($"Email was null, skipping notification, clinicId = #{order.ClinicId}");
+            }
         }
 
 
         var result = await _orderRepo.CreateOrdersAsync(createdOrders);
+
+
 
         return result.Select(ToOrderResponseDto).ToList();
     }
@@ -95,7 +120,7 @@ public class OrderService : IOrderService
     }
     public async Task<bool> UpdateStatusAsync(int orderId, string newStatus, string ownerId)
     {
-        var validStatuses = new[] { "Confirmed", "Cancelled", "Delivered","Pending" };
+        var validStatuses = new[] { "Confirmed", "Cancelled", "Delivered", "Pending" };
         if (!validStatuses.Contains(newStatus)) throw new Exception("Invalid status name.{Confirmed, Cancelled, Delivered, Pending}");
 
         var order = await _orderRepo.GetByIdAsync(orderId);
@@ -106,6 +131,30 @@ public class OrderService : IOrderService
 
         order.Status = newStatus;
         await _orderRepo.UpdateAsync(order);
+
+        var message = ".";
+
+        if (newStatus != "Cancelled")
+        {
+            message = $"with the total amount is {order.TotalAmount:C}.";
+        }
+
+         _logger.LogWarning("userEmail: {Email}", order.User?.Email);
+
+        if (order.User?.Email != null)
+        {
+            await _emailService.SendAsync(
+                order.User.Email,
+                order.User.UserName ?? "Unknown",
+                "Your order status has been updated",
+                $"Hi {order.User.UserName}, your order #{order.Id} is now {newStatus}, {message}"
+            );
+        }
+        else
+        {
+            _logger.LogWarning("Email was null, skipping notification ");
+        }
+
         return true;
 
 

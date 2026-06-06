@@ -72,6 +72,7 @@ var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -._@+";
     options.Password.RequiredLength = 12;
     options.Password.RequireDigit = true;
     options.Password.RequireUppercase = true;
@@ -118,6 +119,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddCors(options =>
 {

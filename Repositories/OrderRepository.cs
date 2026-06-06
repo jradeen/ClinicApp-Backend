@@ -34,7 +34,7 @@ public class OrderRepository : IOrderRepository
 
     public async Task<Order> GetByIdAsync(int id)
     {
-        var order = await _context.Orders.Include(o => o.Clinic).FirstOrDefaultAsync(o => o.Id == id);
+        var order = await _context.Orders.Include(o => o.User).Include(o => o.Clinic).FirstOrDefaultAsync(o => o.Id == id);
         if (order == null) return null;
         return order;
     }
