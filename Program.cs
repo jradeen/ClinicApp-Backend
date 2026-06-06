@@ -69,6 +69,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+var sendGridKey = builder.Configuration["SendGrid:ApiKey"];
+
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
