@@ -11,5 +11,7 @@ public class MedicalServiceResponseDto
     public int Duration { get; set; }
     public string ClinicName { get; set; }
     public int ClinicId { get; set; }
+    public List<string> Tags { get; set; } = new();
+
     public string ImageUrl { get; set; } = string.Empty;
 }

@@ -22,17 +22,27 @@ public class ClinicRepository : IClinicRepository
 
     public async Task<List<Clinic>> GetAllAsync()
     {
-        return await _context.Clinics.ToListAsync();
+        return await _context.Clinics
+        .Include(c => c.ClinicTags)
+        .ThenInclude(ct => ct.Tag)
+        .ToListAsync();
     }
 
     public async Task<Clinic?> GetByIdAsync(int id)
     {
-        return await _context.Clinics.Include(c=> c.Owner).FirstOrDefaultAsync(c => c.Id == id);
+        return await _context.Clinics
+        .Include(c => c.Owner)
+        .Include(c => c.ClinicTags)
+        .ThenInclude(ct => ct.Tag)
+        .FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<Clinic?> GetByOwnerIdAsync(string ownerId)
     {
-        return await _context.Clinics.FirstOrDefaultAsync(c => c.OwnerId == ownerId);
+        return await _context.Clinics
+        .Include(c => c.ClinicTags)
+        .ThenInclude(ct => ct.Tag)
+        .FirstOrDefaultAsync(c => c.OwnerId == ownerId);
     }
 
     public async Task UpdateAsync(Clinic clinic)

@@ -16,5 +16,7 @@ public class UpdateProductDto
 
     [Range(0, 10000)]
     public int StockQuantity { get; set; }
+    public List<int> TagIds { get; set; } = new();
+
     public string? ImageUrl { get; set; }
 }

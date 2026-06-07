@@ -78,6 +78,16 @@ public class ProductService : IProductService
         product.Description = updateDto.Description;
         product.Price = updateDto.Price;
         product.StockQuantity = updateDto.StockQuantity;
+        product.ProductTags.Clear();
+
+         if (updateDto.TagIds != null)
+        {
+            foreach (var tagId in updateDto.TagIds)
+            {
+                product.ProductTags.Add(new ProductTag {ProductId = product.Id,TagId = tagId});
+            }
+        }
+
         if (!string.IsNullOrEmpty(updateDto.ImageUrl) && product.ImageUrl != updateDto.ImageUrl)
         {
             var oldFilePath = Path.Combine(_env.WebRootPath, product.ImageUrl);
@@ -104,6 +114,7 @@ public class ProductService : IProductService
             StockQuantity = product.StockQuantity,
             ClinicName = product.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = product.ClinicId,
+            Tags = product.ProductTags.Select(pt => pt.Tag?.Name ?? "Unknown").ToList(),
             ImageUrl = product.ImageUrl,
         };
     }

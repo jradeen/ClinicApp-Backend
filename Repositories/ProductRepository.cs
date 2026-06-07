@@ -22,22 +22,35 @@ public class ProductRepository : IProductRepository
 
     public async Task<List<Product>> GetAllAsync()
     {
-        return await _context.Products.Include(p => p.Clinic).ToListAsync();
+        return await _context.Products
+            .Include(p => p.Clinic)
+            .Include(p => p.ProductTags)
+            .ThenInclude(pt => pt.Tag)
+            .ToListAsync();
     }
 
     public async Task<List<Product>> GetByClinicIdAsync(int clinicId)
     {
-        return await _context.Products.Where(p => p.ClinicId == clinicId).ToListAsync();
+        return await _context.Products
+            .Include(p => p.ProductTags)
+            .ThenInclude(pt => pt.Tag)
+            .Where(p => p.ClinicId == clinicId).ToListAsync();
     }
 
     public async Task<Product?> GetByIdAsync(int id)
     {
-        return await _context.Products.Include(p=>p.Clinic).FirstOrDefaultAsync(p=>p.Id==id);
+        return await _context.Products
+        .Include(p => p.Clinic)
+        .Include(p => p.ProductTags)
+        .ThenInclude(pt => pt.Tag)
+        .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<List<Product>> GetListByIdsAsync(List<int> ids)
     {
         return await _context.Products
+            .Include(p => p.ProductTags)
+            .ThenInclude(pt => pt.Tag)
             .Where(p => ids.Contains(p.Id))
             .ToListAsync();
     }

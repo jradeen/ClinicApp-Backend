@@ -23,24 +23,37 @@ public class MedicalServiceRepository : IMedicalServiceRepository
 
     public async Task<List<MedicalService>> GetAllAsync()
     {
-        return await _context.MedicalServices.Include(m => m.Clinic).ToListAsync();
+        return await _context.MedicalServices
+        .Include(m => m.MedicalServiceTags)
+        .ThenInclude(mt => mt.Tag)
+        .Include(m => m.Clinic)
+        .ToListAsync();
     }
 
     public async Task<List<MedicalService>> GetByClinicIdAsync(int clinicId)
     {
-        return await _context.MedicalServices.Where(c => c.ClinicId == clinicId).ToListAsync();
+        return await _context.MedicalServices
+        .Include(m => m.MedicalServiceTags)
+        .ThenInclude(mt => mt.Tag)
+        .Where(c => c.ClinicId == clinicId).ToListAsync();
     }
 
     public async Task<MedicalService?> GetByIdAsync(int MedicalServiceId)
     {
-        return await _context.MedicalServices.Include(m=>m.Clinic).FirstOrDefaultAsync(m => m.Id == MedicalServiceId);
+        return await _context.MedicalServices
+        .Include(m => m.Clinic)
+        .Include(m => m.MedicalServiceTags)
+        .ThenInclude(mt => mt.Tag)
+        .FirstOrDefaultAsync(m => m.Id == MedicalServiceId);
     }
 
     public async Task<List<MedicalService>> GetListByIdsAsync(List<int> ids)
     {
         return await _context.MedicalServices
-            .Where(m => ids.Contains(m.Id))
-            .ToListAsync();
+        .Include(m => m.MedicalServiceTags)
+        .ThenInclude(mt => mt.Tag)
+        .Where(m => ids.Contains(m.Id))
+        .ToListAsync();
     }
 
     public async Task UpdateAsync(MedicalService medicalService)
@@ -49,6 +62,7 @@ public class MedicalServiceRepository : IMedicalServiceRepository
         await _context.SaveChangesAsync();
 
     }
+    
     public async Task<MedicalService?> DeleteAsync(int id)
     {
         var medicalService = await _context.MedicalServices.FirstOrDefaultAsync(m => m.Id == id);

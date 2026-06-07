@@ -12,7 +12,7 @@ public class MedicalServiceService : IMedicalServiceService
     private readonly IClinicRepository _clinicRepo;
     private readonly IWebHostEnvironment _env;
 
-    public MedicalServiceService(IWebHostEnvironment environment,IMedicalServiceRepository medicalServiceRepo, IClinicRepository clinicRepo)
+    public MedicalServiceService(IWebHostEnvironment environment, IMedicalServiceRepository medicalServiceRepo, IClinicRepository clinicRepo)
     {
         _clinicRepo = clinicRepo;
         _medicalServiceRepo = medicalServiceRepo;
@@ -31,8 +31,9 @@ public class MedicalServiceService : IMedicalServiceService
             Price = createMedicalServiceDto.Price,
             Duration = createMedicalServiceDto.Duration,
             ClinicId = clinic.Id,
+            MedicalServiceTags = createMedicalServiceDto.TagIds.Select(id => new MedicalServiceTag {TagId = id}).ToList(),
             ImageUrl = !string.IsNullOrEmpty(createMedicalServiceDto.ImageUrl) ? createMedicalServiceDto.ImageUrl : ""
-            
+
 
         };
 
@@ -78,6 +79,17 @@ public class MedicalServiceService : IMedicalServiceService
         medicalService.Price = updateDto.Price;
         medicalService.Duration = updateDto.Duration;
 
+        medicalService.MedicalServiceTags.Clear();
+
+        if (updateDto.TagIds != null)
+        {
+            foreach (var tagId in updateDto.TagIds)
+            {
+                medicalService.MedicalServiceTags.Add(new MedicalServiceTag {MedicalServiceId = medicalService.Id,TagId = tagId});
+            }
+        }
+
+
         if (!string.IsNullOrEmpty(updateDto.ImageUrl) && medicalService.ImageUrl != updateDto.ImageUrl)
         {
             var oldFilePath = Path.Combine(_env.WebRootPath, medicalService.ImageUrl);
@@ -105,6 +117,7 @@ public class MedicalServiceService : IMedicalServiceService
             Duration = medicalService.Duration,
             ClinicName = medicalService.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = medicalService.ClinicId,
+            Tags = medicalService.MedicalServiceTags.Select(mt => mt.Tag?.Name ?? "Unknown").ToList(),
             ImageUrl = medicalService.ImageUrl,
         };
     }

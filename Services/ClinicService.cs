@@ -30,6 +30,7 @@ public class ClinicService : IClinicService
             Location = createClinicDto.Location,
             PhoneNumber = createClinicDto.PhoneNumber,
             OwnerId = ownerId,
+            ClinicTags = createClinicDto.TagIds.Select(id => new ClinicTag {TagId = id}).ToList(),
             ImageUrl = !string.IsNullOrEmpty(createClinicDto.ImageUrl) ? createClinicDto.ImageUrl : ""
 
         };
@@ -74,6 +75,13 @@ public class ClinicService : IClinicService
         clinic.Description = updateDto.Description;
         clinic.PhoneNumber = updateDto.PhoneNumber;
         clinic.Location = updateDto.Location;
+
+        clinic.ClinicTags.Clear();
+        foreach (var tagId in updateDto.TagIds)
+        {
+            clinic.ClinicTags.Add(new ClinicTag { ClinicId = clinic.Id, TagId = tagId, });
+        }
+
         if (!string.IsNullOrEmpty(updateDto.ImageUrl) && clinic.ImageUrl != updateDto.ImageUrl)
         {
             var oldFilePath = Path.Combine(_env.WebRootPath, clinic.ImageUrl);
@@ -101,6 +109,7 @@ public class ClinicService : IClinicService
             PhoneNumber = clinic.PhoneNumber ?? "unavailable",
             Location = clinic.Location,
             OwnerId = clinic.OwnerId,
+            Tags = clinic.ClinicTags.Select(ct => ct.Tag?.Name ?? "Unknown").ToList(),
             ImageUrl = clinic.ImageUrl,
         };
     }

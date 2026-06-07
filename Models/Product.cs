@@ -21,6 +21,7 @@ public class Product
 
     [ForeignKey("ClinicId")]
     public Clinic Clinic { get; set; }
+    public ICollection<ProductTag> ProductTags { get; set; } = new List<ProductTag>();
 
     public string ImageUrl { get; set; } = "uploads/placeholders/default.jpg";
 

@@ -29,6 +29,7 @@ namespace ClinicApp.API.Models
         public AppUser Owner { get; set; }
         public ICollection<Product> Products { get; set; }
         public ICollection<MedicalService> Services { get; set; }
+        public ICollection<ClinicTag> ClinicTags { get; set; } = new List<ClinicTag>();
 
         public string ImageUrl { get; set; } = "uploads/placeholders/default.jpg";
     }

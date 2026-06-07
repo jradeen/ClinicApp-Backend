@@ -16,5 +16,9 @@ public class CreateProductDto
 
     [Range(0, 10000)]
     public int StockQuantity { get; set; }
+    
+    [Required]
+    public List<int> TagIds { get; set; } = new();
+
     public string? ImageUrl { get; set; }
 }

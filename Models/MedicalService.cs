@@ -22,6 +22,8 @@ public class MedicalService
     [ForeignKey("ClinicId")]
     public Clinic Clinic { get; set; }
 
+    public ICollection<MedicalServiceTag> MedicalServiceTags { get; set; } = new List<MedicalServiceTag>();
+
     public string ImageUrl { get; set; } = "uploads/placeholders/default.jpg";
 
 }

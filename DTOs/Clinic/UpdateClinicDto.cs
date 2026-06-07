@@ -19,5 +19,7 @@ public class UpdateClinicDto
     [Required]
     [Phone]
     public string PhoneNumber { get; set; } = string.Empty;
+    public List<int> TagIds { get; set; } = new();
+
     public string? ImageUrl { get; set; }
 }
