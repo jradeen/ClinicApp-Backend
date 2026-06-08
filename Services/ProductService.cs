@@ -114,6 +114,7 @@ public class ProductService : IProductService
             StockQuantity = product.StockQuantity,
             ClinicName = product.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = product.ClinicId,
+            TagIds = product.ProductTags.Select(pt => pt.Tag?.Id ?? 0).ToList(),
             Tags = product.ProductTags.Select(pt => pt.Tag?.Name ?? "Unknown").ToList(),
             ImageUrl = product.ImageUrl,
         };

@@ -13,16 +13,23 @@ namespace ClinicApp.API
         private readonly ITagService _tagService;
         public TagsController(ITagService tagService)
         {
-            _tagService=tagService;
+            _tagService = tagService;
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetTags ([FromQuery] string? catagory)
+        public async Task<IActionResult> GetTags([FromQuery] string? category)
         {
-            var tags = await _tagService.GetAllTagsAsync(catagory);
-            if(tags.IsNullOrEmpty()) return NotFound(); 
-            return Ok(tags);
+            try
+            {
+                var tags = await _tagService.GetAllTagsAsync(category);
+                if (tags.IsNullOrEmpty()) return NotFound();
+                return Ok(tags);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

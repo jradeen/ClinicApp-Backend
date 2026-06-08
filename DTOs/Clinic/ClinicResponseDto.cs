@@ -17,6 +17,8 @@ public class ClinicResponseDto
     public TimeSpan ClosingTime { get; set; }
 
     public string OwnerId { get; set; }
+    public List<int> TagIds { get; set; } = new();
+
     public List<string> Tags { get; set; } = new();
 
     public string ImageUrl { get; set; } = string.Empty;

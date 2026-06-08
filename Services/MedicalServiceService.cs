@@ -117,6 +117,7 @@ public class MedicalServiceService : IMedicalServiceService
             Duration = medicalService.Duration,
             ClinicName = medicalService.Clinic?.Name ?? "Clinic Name unavailable",
             ClinicId = medicalService.ClinicId,
+            TagIds = medicalService.MedicalServiceTags.Select(mt => mt.Tag?.Id ?? 0).ToList(),
             Tags = medicalService.MedicalServiceTags.Select(mt => mt.Tag?.Name ?? "Unknown").ToList(),
             ImageUrl = medicalService.ImageUrl,
         };

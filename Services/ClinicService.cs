@@ -109,6 +109,7 @@ public class ClinicService : IClinicService
             PhoneNumber = clinic.PhoneNumber ?? "unavailable",
             Location = clinic.Location,
             OwnerId = clinic.OwnerId,
+            TagIds = clinic.ClinicTags.Select(ct => ct.Tag?.Id ?? 0).ToList(),
             Tags = clinic.ClinicTags.Select(ct => ct.Tag?.Name ?? "Unknown").ToList(),
             ImageUrl = clinic.ImageUrl,
         };
