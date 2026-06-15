@@ -1,19 +1,21 @@
 using System;
 using ClinicApp.API.DTOs.Clinic;
+using ClinicApp.API.Helpers;
 using ClinicApp.API.Interfaces.IClinic;
 using ClinicApp.API.Models;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace ClinicApp.API.Services;
 
 public class ClinicService : IClinicService
 {
     private readonly IClinicRepository _clinicRepo;
-    private readonly IWebHostEnvironment _env;
-
-    public ClinicService(IClinicRepository clinicRepo, IWebHostEnvironment environment)
+    private readonly Cloudinary _cloudinary;
+    public ClinicService(IClinicRepository clinicRepo, Cloudinary cloudinary)
     {
         _clinicRepo = clinicRepo;
-        _env = environment;
+        _cloudinary = cloudinary;
     }
     public async Task<ClinicResponseDto> CreateClinicAsync(CreateClinicDto createClinicDto, string ownerId)
     {
@@ -30,7 +32,7 @@ public class ClinicService : IClinicService
             Location = createClinicDto.Location,
             PhoneNumber = createClinicDto.PhoneNumber,
             OwnerId = ownerId,
-            ClinicTags = createClinicDto.TagIds.Select(id => new ClinicTag {TagId = id}).ToList(),
+            ClinicTags = createClinicDto.TagIds.Select(id => new ClinicTag { TagId = id }).ToList(),
             ImageUrl = !string.IsNullOrEmpty(createClinicDto.ImageUrl) ? createClinicDto.ImageUrl : ""
 
         };
@@ -84,11 +86,10 @@ public class ClinicService : IClinicService
 
         if (!string.IsNullOrEmpty(updateDto.ImageUrl) && clinic.ImageUrl != updateDto.ImageUrl)
         {
-            var oldFilePath = Path.Combine(_env.WebRootPath, clinic.ImageUrl);
-
-            if (System.IO.File.Exists(oldFilePath))
+            var oldPublicId = CloudinaryHelper.GetPublicIdFromUrl(clinic.ImageUrl);
+            if (!string.IsNullOrEmpty(oldPublicId))
             {
-                System.IO.File.Delete(oldFilePath);
+                await _cloudinary.DestroyAsync(new DeletionParams(oldPublicId));
             }
             clinic.ImageUrl = updateDto.ImageUrl;
         }

@@ -9,6 +9,7 @@ using ClinicApp.API.Interfaces.IProduct;
 using ClinicApp.API.Models;
 using ClinicApp.API.Repositories;
 using ClinicApp.API.Services;
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -125,6 +126,11 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<ITagService, TagService>();
 
+builder.Services.AddSingleton(new Cloudinary(new Account(
+    builder.Configuration["Cloudinary:CloudName"],
+    builder.Configuration["Cloudinary:ApiKey"],
+    builder.Configuration["Cloudinary:ApiSecret"]
+)));
 
 builder.Services.AddCors(options =>
 {
@@ -152,7 +158,6 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,8 +1,11 @@
 using System;
 using ClinicApp.API.DTOs.MedicalService;
+using ClinicApp.API.Helpers;
 using ClinicApp.API.Interfaces.IClinic;
 using ClinicApp.API.Interfaces.IMedicalService;
 using ClinicApp.API.Models;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace ClinicApp.API.Services;
 
@@ -10,14 +13,14 @@ public class MedicalServiceService : IMedicalServiceService
 {
     private readonly IMedicalServiceRepository _medicalServiceRepo;
     private readonly IClinicRepository _clinicRepo;
-    private readonly IWebHostEnvironment _env;
 
-    public MedicalServiceService(IWebHostEnvironment environment, IMedicalServiceRepository medicalServiceRepo, IClinicRepository clinicRepo)
+    private readonly Cloudinary _cloudinary;
+
+    public MedicalServiceService(Cloudinary cloudinary, IMedicalServiceRepository medicalServiceRepo, IClinicRepository clinicRepo)
     {
         _clinicRepo = clinicRepo;
         _medicalServiceRepo = medicalServiceRepo;
-        _env = environment;
-
+        _cloudinary = cloudinary;
     }
     public async Task<MedicalServiceResponseDto> CreateAsync(CreateMedicalServiceDto createMedicalServiceDto, string ownerId)
     {
@@ -31,7 +34,7 @@ public class MedicalServiceService : IMedicalServiceService
             Price = createMedicalServiceDto.Price,
             Duration = createMedicalServiceDto.Duration,
             ClinicId = clinic.Id,
-            MedicalServiceTags = createMedicalServiceDto.TagIds.Select(id => new MedicalServiceTag {TagId = id}).ToList(),
+            MedicalServiceTags = createMedicalServiceDto.TagIds.Select(id => new MedicalServiceTag { TagId = id }).ToList(),
             ImageUrl = !string.IsNullOrEmpty(createMedicalServiceDto.ImageUrl) ? createMedicalServiceDto.ImageUrl : ""
 
 
@@ -85,22 +88,18 @@ public class MedicalServiceService : IMedicalServiceService
         {
             foreach (var tagId in updateDto.TagIds)
             {
-                medicalService.MedicalServiceTags.Add(new MedicalServiceTag {MedicalServiceId = medicalService.Id,TagId = tagId});
+                medicalService.MedicalServiceTags.Add(new MedicalServiceTag { MedicalServiceId = medicalService.Id, TagId = tagId });
             }
         }
 
 
-        if (!string.IsNullOrEmpty(updateDto.ImageUrl) && medicalService.ImageUrl != updateDto.ImageUrl)
+        var oldPublicId = CloudinaryHelper.GetPublicIdFromUrl(medicalService.ImageUrl);
+        if (!string.IsNullOrEmpty(oldPublicId))
         {
-            var oldFilePath = Path.Combine(_env.WebRootPath, medicalService.ImageUrl);
-
-            // Check if the old file physically exists and delete it
-            if (System.IO.File.Exists(oldFilePath))
-            {
-                System.IO.File.Delete(oldFilePath);
-            }
-            medicalService.ImageUrl = updateDto.ImageUrl;
+            await _cloudinary.DestroyAsync(new DeletionParams(oldPublicId));
         }
+        medicalService.ImageUrl = updateDto.ImageUrl;
+
         await _medicalServiceRepo.UpdateAsync(medicalService);
         return ToMedicalResponseDto(medicalService);
 

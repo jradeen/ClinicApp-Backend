@@ -1,8 +1,11 @@
 using System;
 using ClinicApp.API.DTOs.Product;
+using ClinicApp.API.Helpers;
 using ClinicApp.API.Interfaces.IClinic;
 using ClinicApp.API.Interfaces.IProduct;
 using ClinicApp.API.Models;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace ClinicApp.API.Services;
 
@@ -10,13 +13,14 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepo;
     private readonly IClinicRepository _clinicRepo;
-    private readonly IWebHostEnvironment _env;
+    private readonly Cloudinary _cloudinary;
 
-    public ProductService(IWebHostEnvironment environment, IProductRepository productRepo, IClinicRepository clinicRepo)
+
+    public ProductService(IProductRepository productRepo, IClinicRepository clinicRepo, Cloudinary cloudinary)
     {
         _clinicRepo = clinicRepo;
         _productRepo = productRepo;
-        _env = environment;
+        _cloudinary = cloudinary;
     }
 
     public async Task<ProductResponseDto> CreateAsync(CreateProductDto createProductDto, string ownerId)
@@ -80,24 +84,20 @@ public class ProductService : IProductService
         product.StockQuantity = updateDto.StockQuantity;
         product.ProductTags.Clear();
 
-         if (updateDto.TagIds != null)
+        if (updateDto.TagIds != null)
         {
             foreach (var tagId in updateDto.TagIds)
             {
-                product.ProductTags.Add(new ProductTag {ProductId = product.Id,TagId = tagId});
+                product.ProductTags.Add(new ProductTag { ProductId = product.Id, TagId = tagId });
             }
         }
 
-        if (!string.IsNullOrEmpty(updateDto.ImageUrl) && product.ImageUrl != updateDto.ImageUrl)
+        var oldPublicId = CloudinaryHelper.GetPublicIdFromUrl(product.ImageUrl);
+        if (!string.IsNullOrEmpty(oldPublicId))
         {
-            var oldFilePath = Path.Combine(_env.WebRootPath, product.ImageUrl);
-
-            if (System.IO.File.Exists(oldFilePath))
-            {
-                System.IO.File.Delete(oldFilePath);
-            }
-            product.ImageUrl = updateDto.ImageUrl;
+            await _cloudinary.DestroyAsync(new DeletionParams(oldPublicId));
         }
+        product.ImageUrl = updateDto.ImageUrl;
 
         await _productRepo.UpdateAsync(product);
         return ToProductResponseDto(product);

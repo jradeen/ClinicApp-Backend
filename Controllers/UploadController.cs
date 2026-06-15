@@ -1,3 +1,5 @@
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +10,11 @@ namespace ClinicApp.API
     [ApiController]
     public class UploadController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
-        public UploadController(IWebHostEnvironment environment)
+        private readonly Cloudinary _cloudinary;
+
+        public UploadController(Cloudinary cloudinary)
         {
-            _env = environment;
+            _cloudinary = cloudinary;
         }
 
         [HttpPost]
@@ -26,21 +29,19 @@ namespace ClinicApp.API
             if (!allowedExtensions.Contains(extension))
                 return BadRequest("Invalid file type. Only JPG, JPEG, and PNG are allowed.");
 
-            var rootPath = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
-            var uploadFolder = Path.Combine(rootPath, "uploads");
-            if (!Directory.Exists(uploadFolder))
-                Directory.CreateDirectory(uploadFolder);
-
-            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
-            var physicalPath = Path.Combine(uploadFolder, uniqueFileName);
-
-            using (var stream = new FileStream(physicalPath, FileMode.Create))
+            using var stream = file.OpenReadStream();
+            var uploadParams = new ImageUploadParams
             {
-                await file.CopyToAsync(stream);
-            }
+                File = new FileDescription(file.FileName, stream),
+                Folder = "clinicapp"
+            };
 
-            var relativeUrl = $"uploads/{uniqueFileName}";
-            return Ok(new { imageUrl = relativeUrl });
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.Error != null)
+                return BadRequest(uploadResult.Error.Message);
+
+            return Ok(new { imageUrl = uploadResult.SecureUrl.ToString() });
         }
     }
 }
